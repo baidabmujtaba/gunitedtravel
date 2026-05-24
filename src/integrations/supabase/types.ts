@@ -14,16 +14,258 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      click_events: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          meta: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          meta?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          meta?: Json
+        }
+        Relationships: []
+      }
+      offers: {
+        Row: {
+          created_at: string
+          description_ar: string | null
+          description_en: string | null
+          discount_label: string | null
+          id: string
+          image: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          title_ar: string
+          title_en: string
+          valid_until: string | null
+        }
+        Insert: {
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          discount_label?: string | null
+          id?: string
+          image?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title_ar: string
+          title_en: string
+          valid_until?: string | null
+        }
+        Update: {
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          discount_label?: string | null
+          id?: string
+          image?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title_ar?: string
+          title_en?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      service_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          name: string
+          nationality: string | null
+          notes: string | null
+          passport_number: string | null
+          phone: string
+          service_slug: string | null
+          service_type: Database["public"]["Enums"]["service_category"]
+          status: Database["public"]["Enums"]["request_status"]
+          travel_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          name: string
+          nationality?: string | null
+          notes?: string | null
+          passport_number?: string | null
+          phone: string
+          service_slug?: string | null
+          service_type: Database["public"]["Enums"]["service_category"]
+          status?: Database["public"]["Enums"]["request_status"]
+          travel_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          name?: string
+          nationality?: string | null
+          notes?: string | null
+          passport_number?: string | null
+          phone?: string
+          service_slug?: string | null
+          service_type?: Database["public"]["Enums"]["service_category"]
+          status?: Database["public"]["Enums"]["request_status"]
+          travel_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          category: Database["public"]["Enums"]["service_category"]
+          created_at: string
+          description_ar: string | null
+          description_en: string | null
+          id: string
+          image: string | null
+          slug: string
+          sort_order: number
+          status: Database["public"]["Enums"]["content_status"]
+          tags: string[]
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["service_category"]
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          image?: string | null
+          slug: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[]
+          title_ar: string
+          title_en: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["service_category"]
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          image?: string | null
+          slug?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[]
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          gold_color: string
+          id: number
+          logo_url: string | null
+          primary_color: string
+          updated_at: string
+          whatsapp_number: string
+        }
+        Insert: {
+          gold_color?: string
+          id?: number
+          logo_url?: string | null
+          primary_color?: string
+          updated_at?: string
+          whatsapp_number?: string
+        }
+        Update: {
+          gold_color?: string
+          id?: number
+          logo_url?: string | null
+          primary_color?: string
+          updated_at?: string
+          whatsapp_number?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      content_status: "active" | "draft" | "archived"
+      request_status: "pending" | "in_progress" | "done" | "cancelled"
+      service_category:
+        | "travel"
+        | "accommodation"
+        | "packages"
+        | "transportation"
+        | "visa"
+        | "egypt_security"
+        | "religious"
+        | "vip"
+        | "additional"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +392,21 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      content_status: ["active", "draft", "archived"],
+      request_status: ["pending", "in_progress", "done", "cancelled"],
+      service_category: [
+        "travel",
+        "accommodation",
+        "packages",
+        "transportation",
+        "visa",
+        "egypt_security",
+        "religious",
+        "vip",
+        "additional",
+      ],
+    },
   },
 } as const
