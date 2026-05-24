@@ -8,7 +8,7 @@ export interface CatalogService {
   title: { ar: string; en: string };
   description: { ar: string; en: string };
   long: { ar: string; en: string };
-  category: "travel" | "accommodation" | "packages" | "transport" | "visa" | "egypt_security" | "religious" | "vip" | "additional";
+  category: "travel" | "accommodation" | "packages" | "transportation" | "visa" | "egypt_security" | "religious" | "vip" | "additional";
   tags: string[];
   icon: LucideIcon;
   cta: { ar: string; en: string };
@@ -57,11 +57,11 @@ export const CATALOG: CatalogService[] = [
     cta: { ar: "اكتشف الباقات ←", en: "Discover packages →" },
   },
   {
-    slug: "transport",
+    slug: "transportation",
     title: { ar: "النقل والمواصلات", en: "Transport" },
     description: { ar: "تأجير السيارات، نقل المطار، وجولات المدينة الخاصة.", en: "Car rentals, airport transfers, and private city tours." },
     long: { ar: "خدمة تنقل متكاملة: تأجير سيارات، استقبال وتوديع من المطار، وجولات سياحية.", en: "Full mobility services: rentals, airport transfers, and guided city tours." },
-    category: "transport", tags: ["Transport"], icon: Car,
+    category: "transportation", tags: ["Transport"], icon: Car,
     cta: { ar: "اطلب الآن ←", en: "Book now →" },
   },
   {

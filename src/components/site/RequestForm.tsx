@@ -18,7 +18,7 @@ const schema = z.object({
 });
 
 interface Props {
-  serviceType: "egypt_security" | "travel" | "visa" | "accommodation" | "packages" | "transport" | "religious" | "vip" | "additional";
+  serviceType: "egypt_security" | "travel" | "visa" | "accommodation" | "packages" | "transportation" | "religious" | "vip" | "additional";
   serviceSlug?: string;
   compact?: boolean;
 }
