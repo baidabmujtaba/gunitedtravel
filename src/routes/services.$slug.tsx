@@ -45,7 +45,7 @@ function ServiceDetail() {
             <h1 className="text-3xl font-bold md:text-4xl">{svc.title[lang]}</h1>
           </div>
           <div className="mt-3 flex gap-2">
-            {svc.tags.map((t) => <Badge key={t} className="bg-gold text-gold-foreground">{t}</Badge>)}
+            {svc.tags.map((t: string) => <Badge key={t} className="bg-gold text-gold-foreground">{t}</Badge>)}
           </div>
         </div>
       </section>
