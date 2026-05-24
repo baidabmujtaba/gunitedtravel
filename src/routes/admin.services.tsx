@@ -28,7 +28,7 @@ interface Form {
   image: string;
   category: Cat;
   tags: string;
-  status: "active" | "inactive";
+  status: "active" | "draft" | "archived";
 }
 
 const empty: Form = {
@@ -101,9 +101,9 @@ function ServicesAdmin() {
               <div className="grid gap-1.5 md:col-span-2"><Label>Description (EN)</Label><Textarea rows={3} value={form.description_en} onChange={(e) => setForm({ ...form, description_en: e.target.value })} /></div>
               <div className="grid gap-1.5"><Label>Tags (comma separated)</Label><Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} /></div>
               <div className="grid gap-1.5"><Label>Status</Label>
-                <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as "active" | "inactive" })}>
+                <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as "active" | "draft" | "archived" })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent>
+                  <SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="draft">Draft</SelectItem><SelectItem value="archived">Archived</SelectItem></SelectContent>
                 </Select>
               </div>
             </div>
