@@ -4,13 +4,16 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 import { I18nProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -81,6 +84,16 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (path.startsWith("/admin") || path.startsWith("/auth")) return;
+    void supabase.from("page_views").insert({
+      path,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent.slice(0, 300),
+    });
+  }, [path]);
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>

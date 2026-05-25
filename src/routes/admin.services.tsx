@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Upload, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/services")({
   component: ServicesAdmin,
@@ -39,7 +39,27 @@ const empty: Form = {
 function ServicesAdmin() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState<Form>(empty);
+
+  const uploadImage = async (file: File) => {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from("services").upload(path, file, {
+        cacheControl: "3600", upsert: false, contentType: file.type,
+      });
+      if (error) throw error;
+      const { data } = supabase.storage.from("services").getPublicUrl(path);
+      setForm((f) => ({ ...f, image: data.publicUrl }));
+      toast.success("Image uploaded");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const { data } = useQuery({
     queryKey: ["admin-services"],
@@ -96,7 +116,18 @@ function ServicesAdmin() {
               </div>
               <div className="grid gap-1.5"><Label>Title (AR)</Label><Input value={form.title_ar} onChange={(e) => setForm({ ...form, title_ar: e.target.value })} /></div>
               <div className="grid gap-1.5"><Label>Title (EN)</Label><Input value={form.title_en} onChange={(e) => setForm({ ...form, title_en: e.target.value })} /></div>
-              <div className="grid gap-1.5 md:col-span-2"><Label>Image URL</Label><Input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} /></div>
+              <div className="grid gap-1.5 md:col-span-2">
+                <Label>Image</Label>
+                <div className="flex items-center gap-3">
+                  <Input value={form.image} placeholder="https://… or upload" onChange={(e) => setForm({ ...form, image: e.target.value })} />
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-muted">
+                    {uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+                    Upload
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadImage(f); }} />
+                  </label>
+                </div>
+                {form.image && <img src={form.image} alt="" className="mt-2 h-28 w-full rounded-lg object-cover" />}
+              </div>
               <div className="grid gap-1.5 md:col-span-2"><Label>Description (AR)</Label><Textarea rows={3} value={form.description_ar} onChange={(e) => setForm({ ...form, description_ar: e.target.value })} /></div>
               <div className="grid gap-1.5 md:col-span-2"><Label>Description (EN)</Label><Textarea rows={3} value={form.description_en} onChange={(e) => setForm({ ...form, description_en: e.target.value })} /></div>
               <div className="grid gap-1.5"><Label>Tags (comma separated)</Label><Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} /></div>
