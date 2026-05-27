@@ -143,11 +143,19 @@ function HomePage() {
           <Link to="/services" className="text-sm font-medium text-gold hover:underline">{tr("offers_view_all")}</Link>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
-          {[
-            { t: lang === "ar" ? "دبي - سحر الحداثة" : "Dubai — modern wonder", p: "2,499", img: heroImg, badge: lang === "ar" ? "عرض خاص" : "Special" },
-            { t: lang === "ar" ? "القاهرة - عبق التاريخ" : "Cairo — timeless", p: "1,850", img: egyptImg, badge: lang === "ar" ? "الأكثر طلباً" : "Top pick" },
-            { t: lang === "ar" ? "إسطنبول - بوابة الشرق" : "Istanbul — gateway", p: "3,200", img: heroImg },
-          ].map((o, i) => (
+          {(dbOffers && dbOffers.length > 0
+            ? dbOffers.map((o) => ({
+                t: (lang === "ar" ? o.title_ar : o.title_en) || o.title_en,
+                d: (lang === "ar" ? o.description_ar : o.description_en) || "",
+                img: o.image || heroImg,
+                badge: o.discount_label || undefined,
+              }))
+            : [
+                { t: lang === "ar" ? "دبي - سحر الحداثة" : "Dubai — modern wonder", d: lang === "ar" ? "تبدأ من 2,499 ريال" : "From SAR 2,499", img: heroImg, badge: lang === "ar" ? "عرض خاص" : "Special" },
+                { t: lang === "ar" ? "القاهرة - عبق التاريخ" : "Cairo — timeless", d: lang === "ar" ? "تبدأ من 1,850 ريال" : "From SAR 1,850", img: egyptImg, badge: lang === "ar" ? "الأكثر طلباً" : "Top pick" },
+                { t: lang === "ar" ? "إسطنبول - بوابة الشرق" : "Istanbul — gateway", d: lang === "ar" ? "تبدأ من 3,200 ريال" : "From SAR 3,200", img: heroImg, badge: undefined },
+              ]
+          ).map((o, i) => (
             <article key={i} className="group overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-lg">
               <div className="relative h-48 overflow-hidden">
                 <img src={o.img} alt={o.t} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
@@ -155,7 +163,7 @@ function HomePage() {
               </div>
               <div className="p-4">
                 <h3 className="text-sm font-semibold">{o.t}</h3>
-                <p className="mt-1 text-xs text-muted-foreground">{lang === "ar" ? `تبدأ من ${o.p} ريال` : `From SAR ${o.p}`}</p>
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{o.d}</p>
                 <Button asChild size="sm" className="mt-3 rounded-full bg-primary hover:bg-primary/90">
                   <Link to="/contact">{tr("offers_book")}</Link>
                 </Button>
