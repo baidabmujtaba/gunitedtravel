@@ -23,6 +23,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminRequestsRouteImport } from './routes/admin.requests'
 import { Route as AdminOffersRouteImport } from './routes/admin.offers'
+import { Route as AdminContentRouteImport } from './routes/admin.content'
 
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
@@ -94,6 +95,11 @@ const AdminOffersRoute = AdminOffersRouteImport.update({
   path: '/offers',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminContentRoute = AdminContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/egypt-security': typeof EgyptSecurityRoute
   '/services': typeof ServicesRouteWithChildren
+  '/admin/content': typeof AdminContentRoute
   '/admin/offers': typeof AdminOffersRoute
   '/admin/requests': typeof AdminRequestsRoute
   '/admin/services': typeof AdminServicesRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/egypt-security': typeof EgyptSecurityRoute
   '/services': typeof ServicesRouteWithChildren
+  '/admin/content': typeof AdminContentRoute
   '/admin/offers': typeof AdminOffersRoute
   '/admin/requests': typeof AdminRequestsRoute
   '/admin/services': typeof AdminServicesRoute
@@ -135,6 +143,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/egypt-security': typeof EgyptSecurityRoute
   '/services': typeof ServicesRouteWithChildren
+  '/admin/content': typeof AdminContentRoute
   '/admin/offers': typeof AdminOffersRoute
   '/admin/requests': typeof AdminRequestsRoute
   '/admin/services': typeof AdminServicesRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/egypt-security'
     | '/services'
+    | '/admin/content'
     | '/admin/offers'
     | '/admin/requests'
     | '/admin/services'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/egypt-security'
     | '/services'
+    | '/admin/content'
     | '/admin/offers'
     | '/admin/requests'
     | '/admin/services'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/egypt-security'
     | '/services'
+    | '/admin/content'
     | '/admin/offers'
     | '/admin/requests'
     | '/admin/services'
@@ -303,10 +315,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOffersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/content': {
+      id: '/admin/content'
+      path: '/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AdminContentRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminContentRoute: typeof AdminContentRoute
   AdminOffersRoute: typeof AdminOffersRoute
   AdminRequestsRoute: typeof AdminRequestsRoute
   AdminServicesRoute: typeof AdminServicesRoute
@@ -316,6 +336,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminContentRoute: AdminContentRoute,
   AdminOffersRoute: AdminOffersRoute,
   AdminRequestsRoute: AdminRequestsRoute,
   AdminServicesRoute: AdminServicesRoute,

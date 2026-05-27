@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tan
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, ListChecks, FileBox, Sparkles, Settings, LogOut, Loader2, Users } from "lucide-react";
+import { LayoutDashboard, ListChecks, FileBox, Sparkles, Settings, LogOut, Loader2, Users, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -52,14 +52,15 @@ function AdminLayout() {
     );
   }
 
-  const items = [
-    { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { to: "/admin/services", label: "Services", icon: FileBox },
-    { to: "/admin/requests", label: "Requests", icon: ListChecks },
-    { to: "/admin/offers", label: "Offers", icon: Sparkles },
-    { to: "/admin/users", label: "Admins", icon: Users },
-    { to: "/admin/settings", label: "Settings", icon: Settings },
-  ];
+    const items = [
+      { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+      { to: "/admin/content", label: "Content", icon: FileText },
+      { to: "/admin/services", label: "Services", icon: FileBox },
+      { to: "/admin/offers", label: "Offers", icon: Sparkles },
+      { to: "/admin/requests", label: "Requests", icon: ListChecks },
+      { to: "/admin/users", label: "Admins", icon: Users },
+      { to: "/admin/settings", label: "Settings", icon: Settings },
+    ];
 
   return (
     <div className="min-h-screen bg-muted/40" dir="ltr">

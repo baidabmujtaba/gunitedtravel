@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ServiceCard } from "@/components/site/ServiceCard";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { CATALOG } from "@/lib/services-catalog";
+import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero.jpg";
 import egyptImg from "@/assets/egypt.jpg";
 import { Zap, BadgeDollarSign, HeadphonesIcon, Star } from "lucide-react";
@@ -22,22 +24,43 @@ function HomePage() {
   const { tr, lang, dir } = useI18n();
   const featured = CATALOG.slice(0, 4);
 
+  const { data: settings } = useQuery({
+    queryKey: ["site-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("site_settings").select("*").eq("id", 1).single();
+      return data;
+    },
+  });
+
+  const { data: dbOffers } = useQuery({
+    queryKey: ["public-offers"],
+    queryFn: async () => {
+      const { data } = await supabase.from("offers").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(6);
+      return data ?? [];
+    },
+  });
+
+  const heroKicker = (lang === "ar" ? settings?.hero_kicker_ar : settings?.hero_kicker_en) || tr("hero_kicker");
+  const heroTitle = (lang === "ar" ? settings?.hero_title_ar : settings?.hero_title_en) || tr("hero_title");
+  const heroSub = (lang === "ar" ? settings?.hero_sub_ar : settings?.hero_sub_en) || tr("hero_sub");
+  const heroImage = settings?.hero_image_url || heroImg;
+
   return (
     <SiteLayout>
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="relative h-[560px] w-full md:h-[640px]">
-          <img src={heroImg} alt="Gunited Travel agency" className="absolute inset-0 h-full w-full object-cover" />
+          <img src={heroImage} alt="Gunited Travel agency" className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-primary/10" />
           <div className="relative z-10 container mx-auto flex h-full flex-col items-start justify-end px-4 pb-16 text-primary-foreground md:items-end md:pb-20">
             <div className={`max-w-xl ${dir === "rtl" ? "text-right" : "text-left"}`}>
-              <p className="text-sm font-medium text-gold">{tr("hero_kicker")}</p>
+              <p className="text-sm font-medium text-gold">{heroKicker}</p>
               <h1 className="mt-3 text-3xl font-bold leading-tight md:text-5xl">
-                {tr("hero_title").split("Gunited Travel")[0]}
+                {heroTitle.split("Gunited Travel")[0]}
                 <span className="text-gold">Gunited Travel</span>
-                {tr("hero_title").split("Gunited Travel")[1]}
+                {heroTitle.split("Gunited Travel")[1]}
               </h1>
-              <p className="mt-4 text-sm leading-relaxed text-primary-foreground/85 md:text-base">{tr("hero_sub")}</p>
+              <p className="mt-4 text-sm leading-relaxed text-primary-foreground/85 md:text-base">{heroSub}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button asChild size="lg" className="rounded-full bg-gold text-gold-foreground hover:bg-gold/90">
                   <Link to="/contact">{tr("hero_cta_primary")}</Link>
@@ -120,11 +143,19 @@ function HomePage() {
           <Link to="/services" className="text-sm font-medium text-gold hover:underline">{tr("offers_view_all")}</Link>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
-          {[
-            { t: lang === "ar" ? "دبي - سحر الحداثة" : "Dubai — modern wonder", p: "2,499", img: heroImg, badge: lang === "ar" ? "عرض خاص" : "Special" },
-            { t: lang === "ar" ? "القاهرة - عبق التاريخ" : "Cairo — timeless", p: "1,850", img: egyptImg, badge: lang === "ar" ? "الأكثر طلباً" : "Top pick" },
-            { t: lang === "ar" ? "إسطنبول - بوابة الشرق" : "Istanbul — gateway", p: "3,200", img: heroImg },
-          ].map((o, i) => (
+          {(dbOffers && dbOffers.length > 0
+            ? dbOffers.map((o) => ({
+                t: (lang === "ar" ? o.title_ar : o.title_en) || o.title_en,
+                d: (lang === "ar" ? o.description_ar : o.description_en) || "",
+                img: o.image || heroImg,
+                badge: o.discount_label || undefined,
+              }))
+            : [
+                { t: lang === "ar" ? "دبي - سحر الحداثة" : "Dubai — modern wonder", d: lang === "ar" ? "تبدأ من 2,499 ريال" : "From SAR 2,499", img: heroImg, badge: lang === "ar" ? "عرض خاص" : "Special" },
+                { t: lang === "ar" ? "القاهرة - عبق التاريخ" : "Cairo — timeless", d: lang === "ar" ? "تبدأ من 1,850 ريال" : "From SAR 1,850", img: egyptImg, badge: lang === "ar" ? "الأكثر طلباً" : "Top pick" },
+                { t: lang === "ar" ? "إسطنبول - بوابة الشرق" : "Istanbul — gateway", d: lang === "ar" ? "تبدأ من 3,200 ريال" : "From SAR 3,200", img: heroImg, badge: undefined },
+              ]
+          ).map((o, i) => (
             <article key={i} className="group overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-lg">
               <div className="relative h-48 overflow-hidden">
                 <img src={o.img} alt={o.t} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
@@ -132,7 +163,7 @@ function HomePage() {
               </div>
               <div className="p-4">
                 <h3 className="text-sm font-semibold">{o.t}</h3>
-                <p className="mt-1 text-xs text-muted-foreground">{lang === "ar" ? `تبدأ من ${o.p} ريال` : `From SAR ${o.p}`}</p>
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{o.d}</p>
                 <Button asChild size="sm" className="mt-3 rounded-full bg-primary hover:bg-primary/90">
                   <Link to="/contact">{tr("offers_book")}</Link>
                 </Button>
