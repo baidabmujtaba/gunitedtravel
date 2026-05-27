@@ -50,17 +50,17 @@ function HomePage() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="relative h-[560px] w-full md:h-[640px]">
-          <img src={heroImg} alt="Gunited Travel agency" className="absolute inset-0 h-full w-full object-cover" />
+          <img src={heroImage} alt="Gunited Travel agency" className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-primary/10" />
           <div className="relative z-10 container mx-auto flex h-full flex-col items-start justify-end px-4 pb-16 text-primary-foreground md:items-end md:pb-20">
             <div className={`max-w-xl ${dir === "rtl" ? "text-right" : "text-left"}`}>
-              <p className="text-sm font-medium text-gold">{tr("hero_kicker")}</p>
+              <p className="text-sm font-medium text-gold">{heroKicker}</p>
               <h1 className="mt-3 text-3xl font-bold leading-tight md:text-5xl">
-                {tr("hero_title").split("Gunited Travel")[0]}
+                {heroTitle.split("Gunited Travel")[0]}
                 <span className="text-gold">Gunited Travel</span>
-                {tr("hero_title").split("Gunited Travel")[1]}
+                {heroTitle.split("Gunited Travel")[1]}
               </h1>
-              <p className="mt-4 text-sm leading-relaxed text-primary-foreground/85 md:text-base">{tr("hero_sub")}</p>
+              <p className="mt-4 text-sm leading-relaxed text-primary-foreground/85 md:text-base">{heroSub}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button asChild size="lg" className="rounded-full bg-gold text-gold-foreground hover:bg-gold/90">
                   <Link to="/contact">{tr("hero_cta_primary")}</Link>
