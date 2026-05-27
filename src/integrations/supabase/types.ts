@@ -217,7 +217,16 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          about_ar: string | null
+          about_en: string | null
           gold_color: string
+          hero_image_url: string | null
+          hero_kicker_ar: string | null
+          hero_kicker_en: string | null
+          hero_sub_ar: string | null
+          hero_sub_en: string | null
+          hero_title_ar: string | null
+          hero_title_en: string | null
           id: number
           logo_url: string | null
           primary_color: string
@@ -225,7 +234,16 @@ export type Database = {
           whatsapp_number: string
         }
         Insert: {
+          about_ar?: string | null
+          about_en?: string | null
           gold_color?: string
+          hero_image_url?: string | null
+          hero_kicker_ar?: string | null
+          hero_kicker_en?: string | null
+          hero_sub_ar?: string | null
+          hero_sub_en?: string | null
+          hero_title_ar?: string | null
+          hero_title_en?: string | null
           id?: number
           logo_url?: string | null
           primary_color?: string
@@ -233,7 +251,16 @@ export type Database = {
           whatsapp_number?: string
         }
         Update: {
+          about_ar?: string | null
+          about_en?: string | null
           gold_color?: string
+          hero_image_url?: string | null
+          hero_kicker_ar?: string | null
+          hero_kicker_en?: string | null
+          hero_sub_ar?: string | null
+          hero_sub_en?: string | null
+          hero_title_ar?: string | null
+          hero_title_en?: string | null
           id?: number
           logo_url?: string | null
           primary_color?: string
