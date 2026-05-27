@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ServiceCard } from "@/components/site/ServiceCard";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { CATALOG } from "@/lib/services-catalog";
+import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero.jpg";
 import egyptImg from "@/assets/egypt.jpg";
 import { Zap, BadgeDollarSign, HeadphonesIcon, Star } from "lucide-react";
@@ -21,6 +23,27 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { tr, lang, dir } = useI18n();
   const featured = CATALOG.slice(0, 4);
+
+  const { data: settings } = useQuery({
+    queryKey: ["site-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("site_settings").select("*").eq("id", 1).single();
+      return data;
+    },
+  });
+
+  const { data: dbOffers } = useQuery({
+    queryKey: ["public-offers"],
+    queryFn: async () => {
+      const { data } = await supabase.from("offers").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(6);
+      return data ?? [];
+    },
+  });
+
+  const heroKicker = (lang === "ar" ? settings?.hero_kicker_ar : settings?.hero_kicker_en) || tr("hero_kicker");
+  const heroTitle = (lang === "ar" ? settings?.hero_title_ar : settings?.hero_title_en) || tr("hero_title");
+  const heroSub = (lang === "ar" ? settings?.hero_sub_ar : settings?.hero_sub_en) || tr("hero_sub");
+  const heroImage = settings?.hero_image_url || heroImg;
 
   return (
     <SiteLayout>
