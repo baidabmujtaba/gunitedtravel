@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as OffersRouteImport } from './routes/offers'
 import { Route as EgyptSecurityRouteImport } from './routes/egypt-security'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -28,6 +29,11 @@ import { Route as AdminContentRouteImport } from './routes/admin.content'
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OffersRoute = OffersRouteImport.update({
+  id: '/offers',
+  path: '/offers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EgyptSecurityRoute = EgyptSecurityRouteImport.update({
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/egypt-security': typeof EgyptSecurityRoute
+  '/offers': typeof OffersRoute
   '/services': typeof ServicesRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/offers': typeof AdminOffersRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/egypt-security': typeof EgyptSecurityRoute
+  '/offers': typeof OffersRoute
   '/services': typeof ServicesRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/offers': typeof AdminOffersRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/egypt-security': typeof EgyptSecurityRoute
+  '/offers': typeof OffersRoute
   '/services': typeof ServicesRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/offers': typeof AdminOffersRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/egypt-security'
+    | '/offers'
     | '/services'
     | '/admin/content'
     | '/admin/offers'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/egypt-security'
+    | '/offers'
     | '/services'
     | '/admin/content'
     | '/admin/offers'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/egypt-security'
+    | '/offers'
     | '/services'
     | '/admin/content'
     | '/admin/offers'
@@ -212,6 +224,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   EgyptSecurityRoute: typeof EgyptSecurityRoute
+  OffersRoute: typeof OffersRoute
   ServicesRoute: typeof ServicesRouteWithChildren
 }
 
@@ -222,6 +235,13 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offers': {
+      id: '/offers'
+      path: '/offers'
+      fullPath: '/offers'
+      preLoaderRoute: typeof OffersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/egypt-security': {
@@ -366,8 +386,19 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   EgyptSecurityRoute: EgyptSecurityRoute,
+  OffersRoute: OffersRoute,
   ServicesRoute: ServicesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
