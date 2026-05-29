@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ServiceCard } from "@/components/site/ServiceCard";
+import { BookOfferDialog } from "@/components/site/BookOfferDialog";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { CATALOG } from "@/lib/services-catalog";
@@ -9,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero.jpg";
 import egyptImg from "@/assets/egypt.jpg";
 import { Zap, BadgeDollarSign, HeadphonesIcon, Star } from "lucide-react";
+
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -66,8 +68,9 @@ function HomePage() {
                   <Link to="/contact">{tr("hero_cta_primary")}</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20">
-                  <Link to="/services">{tr("hero_cta_secondary")}</Link>
+                  <Link to="/offers">{tr("hero_cta_secondary")}</Link>
                 </Button>
+
               </div>
               <div className="mt-6 flex items-center gap-3 text-xs text-primary-foreground/80">
                 <div className="flex -space-x-2">
@@ -140,7 +143,8 @@ function HomePage() {
             <h2 className="text-2xl font-bold text-primary md:text-3xl">{tr("offers_title")}</h2>
             <p className="mt-1 text-sm text-muted-foreground">{tr("offers_sub")}</p>
           </div>
-          <Link to="/services" className="text-sm font-medium text-gold hover:underline">{tr("offers_view_all")}</Link>
+          <Link to="/offers" className="text-sm font-medium text-gold hover:underline">{tr("offers_view_all")}</Link>
+
         </div>
         <div className="grid gap-5 md:grid-cols-3">
           {(dbOffers && dbOffers.length > 0
@@ -164,11 +168,12 @@ function HomePage() {
               <div className="p-4">
                 <h3 className="text-sm font-semibold">{o.t}</h3>
                 <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{o.d}</p>
-                <Button asChild size="sm" className="mt-3 rounded-full bg-primary hover:bg-primary/90">
-                  <Link to="/contact">{tr("offers_book")}</Link>
-                </Button>
+                <div className="mt-3">
+                  <BookOfferDialog offerTitle={o.t} whatsappNumber={settings?.whatsapp_number} />
+                </div>
               </div>
             </article>
+
           ))}
         </div>
       </section>

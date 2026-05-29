@@ -53,33 +53,41 @@ function RequestsAdmin() {
               <TableHead>Name</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Passport</TableHead>
-              <TableHead>Nationality</TableHead>
               <TableHead>Travel</TableHead>
+              <TableHead>Notes / Offer</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading && <TableRow><TableCell colSpan={8} className="text-center text-sm">Loading…</TableCell></TableRow>}
-            {data?.length === 0 && <TableRow><TableCell colSpan={8} className="text-center text-sm text-muted-foreground">No requests yet.</TableCell></TableRow>}
-            {data?.map((r) => (
-              <TableRow key={r.id}>
-                <TableCell className="font-medium">{r.name}</TableCell>
-                <TableCell>{r.phone}</TableCell>
-                <TableCell className="capitalize">{r.service_type.replace("_", " ")}</TableCell>
-                <TableCell>{r.passport_number ?? "—"}</TableCell>
-                <TableCell>{r.nationality ?? "—"}</TableCell>
-                <TableCell>{r.travel_date ?? "—"}</TableCell>
-                <TableCell><span className="rounded-full bg-muted px-2 py-1 text-xs">{r.status}</span></TableCell>
-                <TableCell>
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "in_progress")}>Progress</Button>
-                    <Button size="sm" onClick={() => setStatus(r.id, "done")} className="bg-primary hover:bg-primary/90">Done</Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {isLoading && <TableRow><TableCell colSpan={7} className="text-center text-sm">Loading…</TableCell></TableRow>}
+            {data?.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-sm text-muted-foreground">No requests yet.</TableCell></TableRow>}
+            {data?.map((r) => {
+              const waText = encodeURIComponent(`Hello ${r.name}, regarding your request with Gunited Travel…`);
+              const waNum = (r.phone || "").replace(/\D/g, "");
+              return (
+                <TableRow key={r.id}>
+                  <TableCell className="font-medium">{r.name}</TableCell>
+                  <TableCell>
+                    <a href={`https://wa.me/${waNum}?text=${waText}`} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                      {r.phone}
+                    </a>
+                  </TableCell>
+                  <TableCell className="capitalize">{r.service_type.replace("_", " ")}</TableCell>
+                  <TableCell>{r.travel_date ?? "—"}</TableCell>
+                  <TableCell className="max-w-xs text-xs text-muted-foreground">{r.message ?? "—"}</TableCell>
+                  <TableCell><span className="rounded-full bg-muted px-2 py-1 text-xs">{r.status}</span></TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "in_progress")}>Progress</Button>
+                      <Button size="sm" onClick={() => setStatus(r.id, "done")} className="bg-primary hover:bg-primary/90">Done</Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+
           </TableBody>
         </Table>
       </div>
