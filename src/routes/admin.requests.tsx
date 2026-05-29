@@ -87,8 +87,6 @@ function RequestsAdmin() {
               );
             })}
           </TableBody>
-
-          </TableBody>
         </Table>
       </div>
     </div>
