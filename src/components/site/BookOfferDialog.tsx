@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
@@ -17,24 +18,43 @@ const schema = z.object({
   passport_number: z.string().trim().max(60).optional().or(z.literal("")),
   nationality: z.string().trim().max(60).optional().or(z.literal("")),
   message: z.string().max(2000).optional().or(z.literal("")),
+  booking_type: z.string().max(40).optional().or(z.literal("")),
+  persons: z.string().max(4).optional().or(z.literal("")),
+  travel_class: z.string().max(40).optional().or(z.literal("")),
 });
 
 interface Props {
   offerTitle: string;
   whatsappNumber?: string | null;
   trigger?: React.ReactNode;
+  defaultBookingType?: string;
 }
 
-export function BookOfferDialog({ offerTitle, whatsappNumber, trigger }: Props) {
+export function BookOfferDialog({ offerTitle, whatsappNumber, trigger, defaultBookingType }: Props) {
   const { tr, lang } = useI18n();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
+  const init = {
     name: "", phone: "", travel_date: "", passport_number: "", nationality: "", message: "",
-  });
+    booking_type: defaultBookingType ?? "flights", persons: "1", travel_class: "economy",
+  };
+  const [form, setForm] = useState(init);
 
   const onChange = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const typeOptions = [
+    { v: "flights", l: lang === "ar" ? "رحلات طيران" : "Flights" },
+    { v: "hotels", l: lang === "ar" ? "فنادق" : "Hotels" },
+    { v: "visa", l: lang === "ar" ? "تأشيرة" : "Visa" },
+    { v: "package", l: lang === "ar" ? "باقة متكاملة" : "Package" },
+    { v: "umrah", l: lang === "ar" ? "عمرة" : "Umrah" },
+  ];
+  const classOptions = [
+    { v: "economy", l: lang === "ar" ? "اقتصادية" : "Economy" },
+    { v: "business", l: lang === "ar" ? "رجال الأعمال" : "Business" },
+    { v: "first", l: lang === "ar" ? "الأولى" : "First" },
+  ];
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,17 +74,24 @@ export function BookOfferDialog({ offerTitle, whatsappNumber, trigger }: Props) 
       message: noteForOffer,
       service_type: "packages",
       service_slug: null,
+      booking_type: parsed.data.booking_type || null,
+      persons: parsed.data.persons ? parseInt(parsed.data.persons, 10) : null,
+      travel_class: parsed.data.travel_class || null,
     });
     setLoading(false);
     if (error) { toast.error(error.message); return; }
 
     void supabase.from("click_events").insert({ kind: "offer_booking", meta: { offer: offerTitle } });
 
-    // Build WhatsApp message
+    const typeLabel = typeOptions.find((t) => t.v === parsed.data.booking_type)?.l ?? parsed.data.booking_type;
+    const classLabel = classOptions.find((t) => t.v === parsed.data.travel_class)?.l ?? parsed.data.travel_class;
     const lines = lang === "ar"
       ? [
           `مرحباً Gunited Travel 👋`,
-          `أرغب في حجز العرض: ${offerTitle}`,
+          `أرغب في حجز: ${offerTitle}`,
+          `نوع الخدمة: ${typeLabel}`,
+          `عدد الأشخاص: ${parsed.data.persons || 1}`,
+          `الدرجة: ${classLabel}`,
           `الاسم: ${parsed.data.name}`,
           `الهاتف: ${parsed.data.phone}`,
           parsed.data.travel_date ? `تاريخ السفر: ${parsed.data.travel_date}` : "",
@@ -74,7 +101,10 @@ export function BookOfferDialog({ offerTitle, whatsappNumber, trigger }: Props) 
         ]
       : [
           `Hello Gunited Travel 👋`,
-          `I'd like to book the offer: ${offerTitle}`,
+          `I'd like to book: ${offerTitle}`,
+          `Service: ${typeLabel}`,
+          `Travelers: ${parsed.data.persons || 1}`,
+          `Class: ${classLabel}`,
           `Name: ${parsed.data.name}`,
           `Phone: ${parsed.data.phone}`,
           parsed.data.travel_date ? `Travel date: ${parsed.data.travel_date}` : "",
@@ -88,7 +118,7 @@ export function BookOfferDialog({ offerTitle, whatsappNumber, trigger }: Props) 
 
     toast.success(tr("request_thanks"));
     setOpen(false);
-    setForm({ name: "", phone: "", travel_date: "", passport_number: "", nationality: "", message: "" });
+    setForm(init);
   };
 
   return (
@@ -100,7 +130,7 @@ export function BookOfferDialog({ offerTitle, whatsappNumber, trigger }: Props) 
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{lang === "ar" ? `حجز: ${offerTitle}` : `Book: ${offerTitle}`}</DialogTitle>
         </DialogHeader>
@@ -115,17 +145,39 @@ export function BookOfferDialog({ offerTitle, whatsappNumber, trigger }: Props) 
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
+              <Label>{lang === "ar" ? "نوع الخدمة" : "Service type"}</Label>
+              <Select value={form.booking_type} onValueChange={(v) => setForm((f) => ({ ...f, booking_type: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{typeOptions.map((o) => <SelectItem key={o.v} value={o.v}>{o.l}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1.5">
+              <Label>{lang === "ar" ? "الدرجة" : "Class"}</Label>
+              <Select value={form.travel_class} onValueChange={(v) => setForm((f) => ({ ...f, travel_class: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{classOptions.map((o) => <SelectItem key={o.v} value={o.v}>{o.l}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="bpax">{lang === "ar" ? "عدد الأشخاص" : "Travelers"}</Label>
+              <Input id="bpax" type="number" min="1" max="20" value={form.persons} onChange={onChange("persons")} />
+            </div>
+            <div className="grid gap-1.5">
               <Label htmlFor="bd">{tr("request_date")}</Label>
               <Input id="bd" type="date" value={form.travel_date} onChange={onChange("travel_date")} />
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
               <Label htmlFor="bnat">{tr("request_nationality")}</Label>
               <Input id="bnat" value={form.nationality} onChange={onChange("nationality")} />
             </div>
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="bpass">{tr("request_passport")}</Label>
-            <Input id="bpass" value={form.passport_number} onChange={onChange("passport_number")} />
+            <div className="grid gap-1.5">
+              <Label htmlFor="bpass">{tr("request_passport")}</Label>
+              <Input id="bpass" value={form.passport_number} onChange={onChange("passport_number")} />
+            </div>
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="bm">{tr("request_message")}</Label>
