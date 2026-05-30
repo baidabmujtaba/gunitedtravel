@@ -24,12 +24,14 @@ interface Form {
   image: string;
   discount_label: string;
   valid_until: string;
+  price: string;
+  currency: string;
   status: "active" | "draft" | "archived";
 }
 
 const empty: Form = {
   title_ar: "", title_en: "", description_ar: "", description_en: "",
-  image: "", discount_label: "", valid_until: "", status: "active",
+  image: "", discount_label: "", valid_until: "", price: "", currency: "SAR", status: "active",
 };
 
 function OffersAdmin() {
@@ -72,6 +74,8 @@ function OffersAdmin() {
       description_ar: f.description_ar || null, description_en: f.description_en || null,
       image: f.image || null, discount_label: f.discount_label || null,
       valid_until: f.valid_until || null, status: f.status,
+      price: f.price ? Number(f.price) : null,
+      currency: f.currency || "SAR",
     };
     const res = f.id
       ? await supabase.from("offers").update(payload).eq("id", f.id)
@@ -100,7 +104,7 @@ function OffersAdmin() {
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90"><Plus className="mr-2 size-4" />Add offer</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
             <DialogHeader><DialogTitle>{f.id ? "Edit offer" : "New offer"}</DialogTitle></DialogHeader>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="grid gap-1.5"><Label>Title (AR)</Label><Input value={f.title_ar} onChange={(e) => setF({ ...f, title_ar: e.target.value })} /></div>
@@ -121,7 +125,9 @@ function OffersAdmin() {
               <div className="grid gap-1.5 md:col-span-2"><Label>Description (EN)</Label><Textarea rows={3} value={f.description_en} onChange={(e) => setF({ ...f, description_en: e.target.value })} /></div>
               <div className="grid gap-1.5"><Label>Discount label</Label><Input placeholder="-30% / Special" value={f.discount_label} onChange={(e) => setF({ ...f, discount_label: e.target.value })} /></div>
               <div className="grid gap-1.5"><Label>Valid until</Label><Input type="date" value={f.valid_until} onChange={(e) => setF({ ...f, valid_until: e.target.value })} /></div>
-              <div className="grid gap-1.5"><Label>Status</Label>
+              <div className="grid gap-1.5"><Label>Price (starting from)</Label><Input type="number" placeholder="2499" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
+              <div className="grid gap-1.5"><Label>Currency</Label><Input placeholder="SAR" value={f.currency} onChange={(e) => setF({ ...f, currency: e.target.value })} /></div>
+              <div className="grid gap-1.5 md:col-span-2"><Label>Status</Label>
                 <Select value={f.status} onValueChange={(v) => setF({ ...f, status: v as Form["status"] })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -148,6 +154,7 @@ function OffersAdmin() {
               </div>
               <div className="text-xs text-muted-foreground">{o.title_ar}</div>
               <div className="mt-1 text-xs text-muted-foreground">{o.discount_label ?? "—"} · until {o.valid_until ?? "—"}</div>
+              {o.price != null && <div className="mt-1 text-sm font-semibold text-primary">{o.currency ?? "SAR"} {Number(o.price).toLocaleString()}</div>}
               <div className="mt-3 flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => {
                   setF({
@@ -155,6 +162,8 @@ function OffersAdmin() {
                     description_ar: o.description_ar ?? "", description_en: o.description_en ?? "",
                     image: o.image ?? "", discount_label: o.discount_label ?? "",
                     valid_until: o.valid_until ?? "", status: o.status,
+                    price: o.price != null ? String(o.price) : "",
+                    currency: o.currency ?? "SAR",
                   });
                   setOpen(true);
                 }}><Pencil className="size-4" /></Button>

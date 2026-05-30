@@ -1,16 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { ServiceCard } from "@/components/site/ServiceCard";
 import { BookOfferDialog } from "@/components/site/BookOfferDialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useI18n } from "@/lib/i18n";
-import { CATALOG } from "@/lib/services-catalog";
 import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero.jpg";
 import egyptImg from "@/assets/egypt.jpg";
-import { Zap, BadgeDollarSign, HeadphonesIcon, Star } from "lucide-react";
-
+import { Plane, Hotel, FileCheck, Search, Zap, BadgeDollarSign, HeadphonesIcon, Star, MapPin, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -22,9 +22,16 @@ export const Route = createFileRoute("/")({
   }),
 });
 
+type Tab = "flights" | "hotels" | "visa";
+
 function HomePage() {
   const { tr, lang, dir } = useI18n();
-  const featured = CATALOG.slice(0, 4);
+  const navigate = useNavigate();
+  const [tab, setTab] = useState<Tab>("flights");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [depart, setDepart] = useState("");
+  const [pax, setPax] = useState("1");
 
   const { data: settings } = useQuery({
     queryKey: ["site-settings"],
@@ -34,10 +41,18 @@ function HomePage() {
     },
   });
 
-  const { data: dbOffers } = useQuery({
+  const { data: services } = useQuery({
+    queryKey: ["public-services"],
+    queryFn: async () => {
+      const { data } = await supabase.from("services").select("*").eq("status", "active").order("sort_order").limit(8);
+      return data ?? [];
+    },
+  });
+
+  const { data: offers } = useQuery({
     queryKey: ["public-offers"],
     queryFn: async () => {
-      const { data } = await supabase.from("offers").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(6);
+      const { data } = await supabase.from("offers").select("*").eq("status", "active").order("created_at", { ascending: false });
       return data ?? [];
     },
   });
@@ -47,53 +62,129 @@ function HomePage() {
   const heroSub = (lang === "ar" ? settings?.hero_sub_ar : settings?.hero_sub_en) || tr("hero_sub");
   const heroImage = settings?.hero_image_url || heroImg;
 
+  const tabs: { id: Tab; icon: typeof Plane; label: string }[] = [
+    { id: "flights", icon: Plane, label: lang === "ar" ? "رحلات" : "Flights" },
+    { id: "hotels", icon: Hotel, label: lang === "ar" ? "فنادق" : "Hotels" },
+    { id: "visa", icon: FileCheck, label: lang === "ar" ? "تأشيرات" : "Visa" },
+  ];
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const summary = lang === "ar"
+      ? `بحث ${tabs.find(t=>t.id===tab)?.label} من ${from || "—"} إلى ${to || "—"} في ${depart || "—"} لـ ${pax} مسافر`
+      : `Search ${tab} from ${from || "—"} to ${to || "—"} on ${depart || "—"} for ${pax} traveler(s)`;
+    const num = (settings?.whatsapp_number || "249915005595").replace(/\D/g, "");
+    void supabase.from("click_events").insert({ kind: "hero_search", meta: { tab, from, to, depart, pax } });
+    window.open(`https://wa.me/${num}?text=${encodeURIComponent(summary)}`, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <SiteLayout>
-      {/* HERO */}
+      {/* HERO + SEARCH (Travelocity style) */}
       <section className="relative overflow-hidden">
-        <div className="relative h-[560px] w-full md:h-[640px]">
-          <img src={heroImage} alt="Gunited Travel agency" className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-primary/10" />
-          <div className="relative z-10 container mx-auto flex h-full flex-col items-start justify-end px-4 pb-16 text-primary-foreground md:items-end md:pb-20">
-            <div className={`max-w-xl ${dir === "rtl" ? "text-right" : "text-left"}`}>
-              <p className="text-sm font-medium text-gold">{heroKicker}</p>
-              <h1 className="mt-3 text-3xl font-bold leading-tight md:text-5xl">
-                {heroTitle.split("Gunited Travel")[0]}
-                <span className="text-gold">Gunited Travel</span>
-                {heroTitle.split("Gunited Travel")[1]}
-              </h1>
-              <p className="mt-4 text-sm leading-relaxed text-primary-foreground/85 md:text-base">{heroSub}</p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild size="lg" className="rounded-full bg-gold text-gold-foreground hover:bg-gold/90">
-                  <Link to="/contact">{tr("hero_cta_primary")}</Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20">
-                  <Link to="/offers">{tr("hero_cta_secondary")}</Link>
-                </Button>
+        <div className="relative min-h-[640px] w-full">
+          <img src={heroImage} alt="Gunited Travel" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/85 via-primary/55 to-primary/85" />
+          <div className={`relative z-10 container mx-auto px-4 pb-12 pt-12 md:pt-20 ${dir === "rtl" ? "text-right" : "text-left"}`}>
+            <p className="text-sm font-medium text-gold">{heroKicker}</p>
+            <h1 className="mt-2 max-w-3xl text-3xl font-bold leading-tight text-primary-foreground md:text-5xl">
+              {heroTitle}
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm text-primary-foreground/85 md:text-base">{heroSub}</p>
 
+            {/* Search card */}
+            <div className="mt-8 rounded-2xl bg-background p-2 shadow-2xl md:p-3">
+              <div className="flex flex-wrap gap-1 border-b border-border px-2 pt-1">
+                {tabs.map((t) => {
+                  const Icon = t.icon;
+                  const active = tab === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTab(t.id)}
+                      className={`flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${
+                        active ? "border-b-2 border-gold text-primary" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Icon className="size-4" />
+                      {t.label}
+                    </button>
+                  );
+                })}
               </div>
-              <div className="mt-6 flex items-center gap-3 text-xs text-primary-foreground/80">
-                <div className="flex -space-x-2">
-                  {[1,2,3].map((i) => (
-                    <div key={i} className="h-7 w-7 rounded-full border-2 border-primary bg-gold/80" />
-                  ))}
+              <form onSubmit={handleSearch} className="grid gap-3 p-3 md:grid-cols-5">
+                <div className="grid gap-1.5 md:col-span-1">
+                  <Label className="text-xs">{tab === "hotels" ? (lang==="ar"?"المدينة":"City") : (lang==="ar"?"من":"From")}</Label>
+                  <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder={lang==="ar"?"الخرطوم":"Khartoum"} />
                 </div>
-                <span>{tr("trust_travelers")}</span>
+                {tab !== "hotels" && (
+                  <div className="grid gap-1.5">
+                    <Label className="text-xs">{lang==="ar"?"إلى":"To"}</Label>
+                    <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder={lang==="ar"?"القاهرة":"Cairo"} />
+                  </div>
+                )}
+                <div className="grid gap-1.5">
+                  <Label className="text-xs">{tab === "visa" ? (lang==="ar"?"تاريخ السفر":"Travel date") : (lang==="ar"?"المغادرة":"Departure")}</Label>
+                  <Input type="date" value={depart} onChange={(e) => setDepart(e.target.value)} />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label className="text-xs">{lang==="ar"?"المسافرون":"Travelers"}</Label>
+                  <Input type="number" min="1" max="20" value={pax} onChange={(e) => setPax(e.target.value)} />
+                </div>
+                <div className="flex items-end">
+                  <Button type="submit" className="h-10 w-full gap-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+                    <Search className="size-4" />
+                    {lang === "ar" ? "بحث" : "Search"}
+                  </Button>
+                </div>
+              </form>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-primary-foreground/80">
+              <div className="flex -space-x-2">
+                {[1,2,3].map((i) => <div key={i} className="h-7 w-7 rounded-full border-2 border-primary bg-gold/80" />)}
               </div>
+              <span>{tr("trust_travelers")}</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SERVICES GRID */}
+      {/* SERVICES from DB */}
       <section className="container mx-auto px-4 py-16">
         <div className="mb-10 text-center">
           <p className="text-xs font-semibold uppercase tracking-wider text-gold">{tr("services_kicker")}</p>
           <h2 className="mt-2 text-2xl font-bold text-primary md:text-3xl">{tr("services_title")}</h2>
         </div>
+        {(!services || services.length === 0) && (
+          <p className="text-center text-sm text-muted-foreground">
+            {lang === "ar" ? "لا توجد خدمات منشورة بعد." : "No services published yet."}
+          </p>
+        )}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {featured.map((s) => (
-            <ServiceCard key={s.slug} {...s} />
+          {services?.map((s) => (
+            <Link
+              key={s.id}
+              to="/services/$slug"
+              params={{ slug: s.slug }}
+              className="group overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-lg"
+            >
+              <div className="relative h-44 overflow-hidden bg-muted">
+                {s.image ? (
+                  <img src={s.image} alt={lang==="ar"?s.title_ar:s.title_en} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-muted-foreground"><MapPin className="size-8" /></div>
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="text-sm font-semibold">{lang === "ar" ? s.title_ar : s.title_en}</h3>
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{lang === "ar" ? s.description_ar : s.description_en}</p>
+                <div className="mt-3 flex items-center gap-1 text-xs font-medium text-gold">
+                  {lang === "ar" ? "اكتشف المزيد" : "Discover more"} <ArrowRight className="size-3" />
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -136,7 +227,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* OFFERS */}
+      {/* OFFERS (DB only) */}
       <section className="container mx-auto px-4 py-16">
         <div className="mb-10 flex items-end justify-between">
           <div>
@@ -144,38 +235,46 @@ function HomePage() {
             <p className="mt-1 text-sm text-muted-foreground">{tr("offers_sub")}</p>
           </div>
           <Link to="/offers" className="text-sm font-medium text-gold hover:underline">{tr("offers_view_all")}</Link>
-
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
-          {(dbOffers && dbOffers.length > 0
-            ? dbOffers.map((o) => ({
-                t: (lang === "ar" ? o.title_ar : o.title_en) || o.title_en,
-                d: (lang === "ar" ? o.description_ar : o.description_en) || "",
-                img: o.image || heroImg,
-                badge: o.discount_label || undefined,
-              }))
-            : [
-                { t: lang === "ar" ? "دبي - سحر الحداثة" : "Dubai — modern wonder", d: lang === "ar" ? "تبدأ من 2,499 ريال" : "From SAR 2,499", img: heroImg, badge: lang === "ar" ? "عرض خاص" : "Special" },
-                { t: lang === "ar" ? "القاهرة - عبق التاريخ" : "Cairo — timeless", d: lang === "ar" ? "تبدأ من 1,850 ريال" : "From SAR 1,850", img: egyptImg, badge: lang === "ar" ? "الأكثر طلباً" : "Top pick" },
-                { t: lang === "ar" ? "إسطنبول - بوابة الشرق" : "Istanbul — gateway", d: lang === "ar" ? "تبدأ من 3,200 ريال" : "From SAR 3,200", img: heroImg, badge: undefined },
-              ]
-          ).map((o, i) => (
-            <article key={i} className="group overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-lg">
-              <div className="relative h-48 overflow-hidden">
-                <img src={o.img} alt={o.t} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
-                {o.badge && <span className="absolute top-3 right-3 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">{o.badge}</span>}
-              </div>
-              <div className="p-4">
-                <h3 className="text-sm font-semibold">{o.t}</h3>
-                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{o.d}</p>
-                <div className="mt-3">
-                  <BookOfferDialog offerTitle={o.t} whatsappNumber={settings?.whatsapp_number} />
-                </div>
-              </div>
-            </article>
-
-          ))}
-        </div>
+        {(!offers || offers.length === 0) ? (
+          <div className="rounded-2xl border border-dashed border-border bg-muted/30 py-16 text-center">
+            <p className="text-sm text-muted-foreground">
+              {lang === "ar" ? "لا توجد عروض نشطة حالياً. تواصل معنا لعروض مخصصة." : "No active offers right now. Contact us for custom deals."}
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-3">
+            {offers.slice(0, 6).map((o) => {
+              const title = (lang === "ar" ? o.title_ar : o.title_en) || o.title_en;
+              const desc = (lang === "ar" ? o.description_ar : o.description_en) || "";
+              return (
+                <article key={o.id} className="group overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-lg">
+                  <div className="relative h-48 overflow-hidden bg-muted">
+                    {o.image ? (
+                      <img src={o.image} alt={title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-muted-foreground"><MapPin className="size-8" /></div>
+                    )}
+                    {o.discount_label && <span className="absolute right-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">{o.discount_label}</span>}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-sm font-semibold">{title}</h3>
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{desc}</p>
+                    <div className="mt-3 flex items-center justify-between">
+                      {o.price != null ? (
+                        <div className="text-sm">
+                          <span className="text-xs text-muted-foreground">{lang === "ar" ? "تبدأ من" : "From"}</span>{" "}
+                          <span className="font-bold text-primary">{o.currency ?? "SAR"} {Number(o.price).toLocaleString()}</span>
+                        </div>
+                      ) : <span />}
+                      <BookOfferDialog offerTitle={title} whatsappNumber={settings?.whatsapp_number} />
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* TESTIMONIALS */}
@@ -184,9 +283,9 @@ function HomePage() {
           <h2 className="text-center text-2xl font-bold text-primary md:text-3xl">{tr("testimonials_title")}</h2>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {[
-              { n: lang === "ar" ? "أحمد المنصوري" : "Ahmed Al-Mansouri", q: lang === "ar" ? "خدمة ممتازة في كل تفاصيل الحجز. حصلت على الموافقة الأمنية بأقل من 24 ساعة. شكراً Gunited!" : "Excellent end-to-end service. I got my Egypt clearance in under 24 hours. Thank you Gunited!" },
+              { n: lang === "ar" ? "أحمد المنصوري" : "Ahmed Al-Mansouri", q: lang === "ar" ? "خدمة ممتازة في كل تفاصيل الحجز. حصلت على الموافقة الأمنية بأقل من 24 ساعة." : "Excellent end-to-end service. Egypt clearance in under 24 hours." },
               { n: lang === "ar" ? "سارة عبد الله" : "Sara Abdullah", q: lang === "ar" ? "أفضل وكالة تعاملت معها. أسعار رائعة ودعم متواصل." : "Best agency I've worked with. Great prices and constant support." },
-              { n: lang === "ar" ? "محمد علي" : "Mohammed Ali", q: lang === "ar" ? "تجربة VIP حقيقية. مدير حسابي اهتم بأدق التفاصيل." : "A true VIP experience. My account manager handled every detail." },
+              { n: lang === "ar" ? "محمد علي" : "Mohammed Ali", q: lang === "ar" ? "تجربة VIP حقيقية. مدير حسابي اهتم بأدق التفاصيل." : "A true VIP experience." },
             ].map((t) => (
               <div key={t.n} className="rounded-2xl border border-border bg-card p-5">
                 <div className="flex gap-0.5 text-gold">
