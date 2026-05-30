@@ -119,8 +119,44 @@ export type Database = {
         }
         Relationships: []
       }
+      request_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_status: string
+          old_status: string | null
+          request_id: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_status: string
+          old_status?: string | null
+          request_id: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_status?: string
+          old_status?: string | null
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_status_history_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_requests: {
         Row: {
+          booking_type: string | null
           created_at: string
           id: string
           message: string | null
@@ -128,14 +164,17 @@ export type Database = {
           nationality: string | null
           notes: string | null
           passport_number: string | null
+          persons: number | null
           phone: string
           service_slug: string | null
           service_type: Database["public"]["Enums"]["service_category"]
           status: Database["public"]["Enums"]["request_status"]
+          travel_class: string | null
           travel_date: string | null
           updated_at: string
         }
         Insert: {
+          booking_type?: string | null
           created_at?: string
           id?: string
           message?: string | null
@@ -143,14 +182,17 @@ export type Database = {
           nationality?: string | null
           notes?: string | null
           passport_number?: string | null
+          persons?: number | null
           phone: string
           service_slug?: string | null
           service_type: Database["public"]["Enums"]["service_category"]
           status?: Database["public"]["Enums"]["request_status"]
+          travel_class?: string | null
           travel_date?: string | null
           updated_at?: string
         }
         Update: {
+          booking_type?: string | null
           created_at?: string
           id?: string
           message?: string | null
@@ -158,10 +200,12 @@ export type Database = {
           nationality?: string | null
           notes?: string | null
           passport_number?: string | null
+          persons?: number | null
           phone?: string
           service_slug?: string | null
           service_type?: Database["public"]["Enums"]["service_category"]
           status?: Database["public"]["Enums"]["request_status"]
+          travel_class?: string | null
           travel_date?: string | null
           updated_at?: string
         }
