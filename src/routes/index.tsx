@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -26,7 +26,7 @@ type Tab = "flights" | "hotels" | "visa";
 
 function HomePage() {
   const { tr, lang, dir } = useI18n();
-  const navigate = useNavigate();
+  
   const [tab, setTab] = useState<Tab>("flights");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
