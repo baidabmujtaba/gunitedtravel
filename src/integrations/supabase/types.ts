@@ -38,11 +38,13 @@ export type Database = {
       offers: {
         Row: {
           created_at: string
+          currency: string | null
           description_ar: string | null
           description_en: string | null
           discount_label: string | null
           id: string
           image: string | null
+          price: number | null
           status: Database["public"]["Enums"]["content_status"]
           title_ar: string
           title_en: string
@@ -50,11 +52,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          currency?: string | null
           description_ar?: string | null
           description_en?: string | null
           discount_label?: string | null
           id?: string
           image?: string | null
+          price?: number | null
           status?: Database["public"]["Enums"]["content_status"]
           title_ar: string
           title_en: string
@@ -62,11 +66,13 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          currency?: string | null
           description_ar?: string | null
           description_en?: string | null
           discount_label?: string | null
           id?: string
           image?: string | null
+          price?: number | null
           status?: Database["public"]["Enums"]["content_status"]
           title_ar?: string
           title_en?: string
