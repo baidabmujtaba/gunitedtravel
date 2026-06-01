@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { BookOfferDialog } from "@/components/site/BookOfferDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import heroImg from "@/assets/hero.jpg";
@@ -20,11 +19,6 @@ export const Route = createFileRoute("/offers")({
 
 function OffersPage() {
   const { lang, tr } = useI18n();
-
-  const { data: settings } = useQuery({
-    queryKey: ["site-settings"],
-    queryFn: async () => (await supabase.from("site_settings").select("whatsapp_number").eq("id", 1).single()).data,
-  });
 
   const { data: offers, isLoading } = useQuery({
     queryKey: ["public-offers-all"],
@@ -58,7 +52,11 @@ function OffersPage() {
             const title = (lang === "ar" ? o.title_ar : o.title_en) || o.title_en;
             const desc = (lang === "ar" ? o.description_ar : o.description_en) || "";
             return (
-              <article key={o.id} className="group overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-xl">
+              <a
+                key={o.id}
+                href={`/offers/${o.id}`}
+                className="group overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-xl"
+              >
                 <div className="relative h-52 overflow-hidden">
                   <img src={o.image || heroImg} alt={title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
                   {o.discount_label && (
@@ -75,11 +73,19 @@ function OffersPage() {
                       {lang === "ar" ? "ساري حتى" : "Valid until"}: {o.valid_until}
                     </p>
                   )}
-                  <div className="mt-4">
-                    <BookOfferDialog offerTitle={title} whatsappNumber={settings?.whatsapp_number} />
+                  <div className="mt-4 flex items-center justify-between">
+                    {o.price != null ? (
+                      <div className="text-sm">
+                        <span className="text-xs text-muted-foreground">{lang === "ar" ? "تبدأ من" : "From"}</span>{" "}
+                        <span className="font-bold text-primary">{o.currency ?? "SAR"} {Number(o.price).toLocaleString()}</span>
+                      </div>
+                    ) : <span />}
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                      {lang === "ar" ? "احجز الآن" : "Book now"}
+                    </span>
                   </div>
                 </div>
-              </article>
+              </a>
             );
           })}
         </div>
@@ -87,3 +93,4 @@ function OffersPage() {
     </SiteLayout>
   );
 }
+
