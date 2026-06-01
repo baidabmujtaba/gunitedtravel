@@ -34,7 +34,7 @@ const empty: Form = {
   image: "", discount_label: "", valid_until: "", price: "", currency: "SAR", status: "active",
 };
 
-function OffersAdmin() {
+export function OffersAdmin() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);

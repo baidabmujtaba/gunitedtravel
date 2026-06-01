@@ -12,7 +12,7 @@ export const Route = createFileRoute("/admin/settings")({
   component: SettingsAdmin,
 });
 
-function SettingsAdmin() {
+export function SettingsAdmin() {
   const qc = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const { data } = useQuery({

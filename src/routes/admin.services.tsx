@@ -36,7 +36,7 @@ const empty: Form = {
   image: "", category: "travel", tags: "", status: "active",
 };
 
-function ServicesAdmin() {
+export function ServicesAdmin() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);

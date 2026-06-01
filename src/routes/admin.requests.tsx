@@ -19,7 +19,7 @@ const TYPES = ["all", "egypt_security", "travel", "visa", "accommodation", "pack
 const STATUSES = ["all", "pending", "in_progress", "done", "cancelled"] as const;
 type Status = "pending" | "in_progress" | "done" | "cancelled";
 
-function RequestsAdmin() {
+export function RequestsAdmin() {
   const qc = useQueryClient();
   const [filter, setFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
