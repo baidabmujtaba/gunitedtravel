@@ -12,7 +12,7 @@ export const Route = createFileRoute("/admin/users")({
   component: UsersAdmin,
 });
 
-function UsersAdmin() {
+export function UsersAdmin() {
   const qc = useQueryClient();
   const [inviteEmail, setInviteEmail] = useState("");
   const [pw, setPw] = useState("");

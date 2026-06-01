@@ -29,7 +29,7 @@ const empty: ContentForm = {
   about_ar: "", about_en: "",
 };
 
-function ContentAdmin() {
+export function ContentAdmin() {
   const qc = useQueryClient();
   const [form, setForm] = useState<ContentForm>(empty);
   const [uploading, setUploading] = useState(false);

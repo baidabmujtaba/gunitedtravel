@@ -36,7 +36,7 @@ const empty: Form = {
   image: "", category: "travel", tags: "", status: "active",
 };
 
-function ServicesAdmin() {
+export function ServicesAdmin() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -63,6 +63,7 @@ function ServicesAdmin() {
 
   const { data } = useQuery({
     queryKey: ["admin-services"],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase.from("services").select("*").order("created_at", { ascending: false });
       if (error) throw error;

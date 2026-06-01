@@ -34,7 +34,7 @@ const empty: Form = {
   image: "", discount_label: "", valid_until: "", price: "", currency: "SAR", status: "active",
 };
 
-function OffersAdmin() {
+export function OffersAdmin() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -42,6 +42,7 @@ function OffersAdmin() {
 
   const { data } = useQuery({
     queryKey: ["admin-offers"],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase.from("offers").select("*").order("created_at", { ascending: false });
       if (error) throw error;

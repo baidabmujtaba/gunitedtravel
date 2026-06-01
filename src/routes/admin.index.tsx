@@ -1,12 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileBox, ListChecks, MousePointerClick, Sparkles, Eye, Users as UsersIcon } from "lucide-react";
+import { FileBox, ListChecks, MousePointerClick, Sparkles, Eye, Users as UsersIcon, LayoutDashboard, FileText, Settings as SettingsIcon } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ServicesAdmin } from "./admin.services";
+import { OffersAdmin } from "./admin.offers";
+import { RequestsAdmin } from "./admin.requests";
+import { ContentAdmin } from "./admin.content";
+import { SettingsAdmin } from "./admin.settings";
+import { UsersAdmin } from "./admin.users";
 
 export const Route = createFileRoute("/admin/")({
-  component: Dashboard,
+  component: AdminAllInOne,
 });
+
+const STALE = 60_000;
 
 function Stat({ label, value, icon: Icon }: { label: string; value: string | number; icon: React.ComponentType<{ className?: string }> }) {
   return (
@@ -23,6 +32,7 @@ function Stat({ label, value, icon: Icon }: { label: string; value: string | num
 function Dashboard() {
   const { data } = useQuery({
     queryKey: ["admin-stats"],
+    staleTime: STALE,
     queryFn: async () => {
       const since30 = new Date(Date.now() - 30 * 86400_000).toISOString();
       const [svc, req, offers, clicks, views, recentReq, recentViews, topReq, topPaths] = await Promise.all([
@@ -133,7 +143,7 @@ function Dashboard() {
       <div className="mt-6 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold">Recent requests</h2>
-          <Link to="/admin/requests" className="text-xs text-primary hover:underline">View all →</Link>
+          <Link to="/admin" className="text-xs text-primary hover:underline">View all →</Link>
         </div>
         <div className="mt-4 divide-y divide-border">
           {(data?.recent ?? []).length === 0 && <p className="py-3 text-sm text-muted-foreground">No requests yet.</p>}
@@ -149,5 +159,28 @@ function Dashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+function AdminAllInOne() {
+  return (
+    <Tabs defaultValue="dashboard" className="w-full">
+      <TabsList className="mb-6 flex h-auto flex-wrap justify-start gap-1 bg-muted/60 p-1">
+        <TabsTrigger value="dashboard" className="gap-1.5"><LayoutDashboard className="size-4" />Dashboard</TabsTrigger>
+        <TabsTrigger value="requests" className="gap-1.5"><ListChecks className="size-4" />Requests</TabsTrigger>
+        <TabsTrigger value="services" className="gap-1.5"><FileBox className="size-4" />Services</TabsTrigger>
+        <TabsTrigger value="offers" className="gap-1.5"><Sparkles className="size-4" />Offers</TabsTrigger>
+        <TabsTrigger value="content" className="gap-1.5"><FileText className="size-4" />Content</TabsTrigger>
+        <TabsTrigger value="settings" className="gap-1.5"><SettingsIcon className="size-4" />Settings</TabsTrigger>
+        <TabsTrigger value="users" className="gap-1.5"><UsersIcon className="size-4" />Admins</TabsTrigger>
+      </TabsList>
+      <TabsContent value="dashboard"><Dashboard /></TabsContent>
+      <TabsContent value="requests"><RequestsAdmin /></TabsContent>
+      <TabsContent value="services"><ServicesAdmin /></TabsContent>
+      <TabsContent value="offers"><OffersAdmin /></TabsContent>
+      <TabsContent value="content"><ContentAdmin /></TabsContent>
+      <TabsContent value="settings"><SettingsAdmin /></TabsContent>
+      <TabsContent value="users"><UsersAdmin /></TabsContent>
+    </Tabs>
   );
 }

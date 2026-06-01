@@ -19,7 +19,7 @@ const TYPES = ["all", "egypt_security", "travel", "visa", "accommodation", "pack
 const STATUSES = ["all", "pending", "in_progress", "done", "cancelled"] as const;
 type Status = "pending" | "in_progress" | "done" | "cancelled";
 
-function RequestsAdmin() {
+export function RequestsAdmin() {
   const qc = useQueryClient();
   const [filter, setFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -29,6 +29,7 @@ function RequestsAdmin() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["requests", filter, statusFilter, dateFrom, dateTo],
+    staleTime: 30_000,
     queryFn: async () => {
       let q = supabase.from("service_requests").select("*").order("created_at", { ascending: false });
       if (filter !== "all") q = q.eq("service_type", filter as never);
