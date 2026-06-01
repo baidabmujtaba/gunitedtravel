@@ -42,6 +42,7 @@ export function OffersAdmin() {
 
   const { data } = useQuery({
     queryKey: ["admin-offers"],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase.from("offers").select("*").order("created_at", { ascending: false });
       if (error) throw error;

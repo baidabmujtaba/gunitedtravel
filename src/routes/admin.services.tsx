@@ -63,6 +63,7 @@ export function ServicesAdmin() {
 
   const { data } = useQuery({
     queryKey: ["admin-services"],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase.from("services").select("*").order("created_at", { ascending: false });
       if (error) throw error;
