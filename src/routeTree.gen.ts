@@ -17,8 +17,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServicesIndexRouteImport } from './routes/services.index'
+import { Route as OffersIndexRouteImport } from './routes/offers.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
+import { Route as OffersIdRouteImport } from './routes/offers.$id'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
@@ -66,6 +69,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesIndexRoute = ServicesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ServicesRoute,
+} as any)
+const OffersIndexRoute = OffersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OffersRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -75,6 +88,11 @@ const ServicesSlugRoute = ServicesSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ServicesRoute,
+} as any)
+const OffersIdRoute = OffersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => OffersRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
@@ -114,7 +132,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/egypt-security': typeof EgyptSecurityRoute
-  '/offers': typeof OffersRoute
+  '/offers': typeof OffersRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/offers': typeof AdminOffersRoute
@@ -122,8 +140,11 @@ export interface FileRoutesByFullPath {
   '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/offers/$id': typeof OffersIdRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/offers/': typeof OffersIndexRoute
+  '/services/': typeof ServicesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -131,16 +152,17 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/egypt-security': typeof EgyptSecurityRoute
-  '/offers': typeof OffersRoute
-  '/services': typeof ServicesRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/offers': typeof AdminOffersRoute
   '/admin/requests': typeof AdminRequestsRoute
   '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/offers/$id': typeof OffersIdRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/offers': typeof OffersIndexRoute
+  '/services': typeof ServicesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -150,7 +172,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/egypt-security': typeof EgyptSecurityRoute
-  '/offers': typeof OffersRoute
+  '/offers': typeof OffersRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/offers': typeof AdminOffersRoute
@@ -158,8 +180,11 @@ export interface FileRoutesById {
   '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/offers/$id': typeof OffersIdRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/offers/': typeof OffersIndexRoute
+  '/services/': typeof ServicesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -178,8 +203,11 @@ export interface FileRouteTypes {
     | '/admin/services'
     | '/admin/settings'
     | '/admin/users'
+    | '/offers/$id'
     | '/services/$slug'
     | '/admin/'
+    | '/offers/'
+    | '/services/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -187,16 +215,17 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/egypt-security'
-    | '/offers'
-    | '/services'
     | '/admin/content'
     | '/admin/offers'
     | '/admin/requests'
     | '/admin/services'
     | '/admin/settings'
     | '/admin/users'
+    | '/offers/$id'
     | '/services/$slug'
     | '/admin'
+    | '/offers'
+    | '/services'
   id:
     | '__root__'
     | '/'
@@ -213,8 +242,11 @@ export interface FileRouteTypes {
     | '/admin/services'
     | '/admin/settings'
     | '/admin/users'
+    | '/offers/$id'
     | '/services/$slug'
     | '/admin/'
+    | '/offers/'
+    | '/services/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -224,7 +256,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   EgyptSecurityRoute: typeof EgyptSecurityRoute
-  OffersRoute: typeof OffersRoute
+  OffersRoute: typeof OffersRouteWithChildren
   ServicesRoute: typeof ServicesRouteWithChildren
 }
 
@@ -286,6 +318,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services/': {
+      id: '/services/'
+      path: '/'
+      fullPath: '/services/'
+      preLoaderRoute: typeof ServicesIndexRouteImport
+      parentRoute: typeof ServicesRoute
+    }
+    '/offers/': {
+      id: '/offers/'
+      path: '/'
+      fullPath: '/offers/'
+      preLoaderRoute: typeof OffersIndexRouteImport
+      parentRoute: typeof OffersRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -299,6 +345,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/services/$slug'
       preLoaderRoute: typeof ServicesSlugRouteImport
       parentRoute: typeof ServicesRoute
+    }
+    '/offers/$id': {
+      id: '/offers/$id'
+      path: '/$id'
+      fullPath: '/offers/$id'
+      preLoaderRoute: typeof OffersIdRouteImport
+      parentRoute: typeof OffersRoute
     }
     '/admin/users': {
       id: '/admin/users'
@@ -367,12 +420,27 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface OffersRouteChildren {
+  OffersIdRoute: typeof OffersIdRoute
+  OffersIndexRoute: typeof OffersIndexRoute
+}
+
+const OffersRouteChildren: OffersRouteChildren = {
+  OffersIdRoute: OffersIdRoute,
+  OffersIndexRoute: OffersIndexRoute,
+}
+
+const OffersRouteWithChildren =
+  OffersRoute._addFileChildren(OffersRouteChildren)
+
 interface ServicesRouteChildren {
   ServicesSlugRoute: typeof ServicesSlugRoute
+  ServicesIndexRoute: typeof ServicesIndexRoute
 }
 
 const ServicesRouteChildren: ServicesRouteChildren = {
   ServicesSlugRoute: ServicesSlugRoute,
+  ServicesIndexRoute: ServicesIndexRoute,
 }
 
 const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
@@ -386,9 +454,19 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   EgyptSecurityRoute: EgyptSecurityRoute,
-  OffersRoute: OffersRoute,
+  OffersRoute: OffersRouteWithChildren,
   ServicesRoute: ServicesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

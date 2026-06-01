@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { BookOfferDialog } from "@/components/site/BookOfferDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -243,12 +242,16 @@ function HomePage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-3">
             {offers.slice(0, 6).map((o) => {
               const title = (lang === "ar" ? o.title_ar : o.title_en) || o.title_en;
               const desc = (lang === "ar" ? o.description_ar : o.description_en) || "";
               return (
-                <article key={o.id} className="group overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-lg">
+                <a
+                  key={o.id}
+                  href={`/offers/${o.id}`}
+                  className="group overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-lg"
+                >
                   <div className="relative h-48 overflow-hidden bg-muted">
                     {o.image ? (
                       <img src={o.image} alt={title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
@@ -267,10 +270,12 @@ function HomePage() {
                           <span className="font-bold text-primary">{o.currency ?? "SAR"} {Number(o.price).toLocaleString()}</span>
                         </div>
                       ) : <span />}
-                      <BookOfferDialog offerTitle={title} whatsappNumber={settings?.whatsapp_number} />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                        {lang === "ar" ? "احجز الآن" : "Book now"}
+                      </span>
                     </div>
                   </div>
-                </article>
+                </a>
               );
             })}
           </div>
